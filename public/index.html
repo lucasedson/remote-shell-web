@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shell Interativo</title>
+  <style>
+    body {
+      font-family: monospace;
+      background-color: black;
+      color: white;
+      padding: 20px;
+    }
+    #terminal {
+      background-color: black;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      height: 400px;
+      overflow-y: scroll;
+      border: 1px solid #333;
+    }
+    #input {
+      width: 100%;
+      padding: 10px;
+      background-color: #222;
+      border: none;
+      color: white;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Terminal Interativo</h1>
+  <div id="terminal"></div>
+  <input type="text" id="input" placeholder="Digite um comando..." autofocus />
+  
+  <script>
+    const terminal = document.getElementById('terminal');
+    const input = document.getElementById('input');
+    
+    // Cria a conexão WebSocket com o servidor
+    const ws = new WebSocket('ws://localhost:3000');
+    
+    ws.onopen = () => {
+      terminal.innerHTML += '<div>Conectado ao servidor...</div>';
+    };
+    
+    ws.onmessage = (event) => {
+      terminal.innerHTML += `<div>${event.data}</div>`;
+      terminal.scrollTop = terminal.scrollHeight; // Rola até o final
+    };
+    
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && input.value.trim() !== '') {
+        const command = input.value.trim();
+        terminal.innerHTML += `<div><b>$</b> ${command}</div>`;
+        ws.send(command); // Envia o comando para o servidor
+        input.value = ''; // Limpa o campo de entrada
+      }
+    });
+  </script>
+</body>
+</html>
